@@ -1,18 +1,18 @@
 // management_module.v
 
 module management_module(clock, reset, _tpm_init, nv_mode, cmd_code, cmd_param, phEnable, shEnable, ehEnable, s_initialized, saved_mode, responseCode);
-	input clock;
-	input reset;
-	input _tpm_init;       // _TPM_Init signal
-	input [1:0] nv_mode;
-	input [29:0] cmd_code;
-	input cmd_param;
-	output phEnable;
-	output shEnable;
-	output ehEnable;
-	output s_initialized;
-	output [1:0] saved_mode;
-	output [3:0] responseCode;
+	input clock;				// Input clock signal
+	input reset;				// Input reset signal
+	input _tpm_init;       			// _TPM_Init signal
+	input [1:0] nv_mode;			// 2-bit input mode from Non-Volatile memory
+	input [29:0] cmd_code;			// 30-bit input command
+	input cmd_param;			// Input command parameters
+	output phEnable;			// 1-bit output platform hierarchy enable
+	output shEnable;			// 1-bit output owner hierarchy enable
+	output ehEnable;			// 1-bit output privacy administrator hierarchy enable
+	output s_initialized;			// 1-bit output intialized bit
+	output [1:0] saved_mode;		// 2-bit output mode to save in Non-Volatile memory when reset occurs
+	output [3:0] responseCode;		// 4-bit output response code
 	
 	localparam TPM_RC_INITIALIZE = 4'b0001, TPM_RC_VALUE = 4'b0010, TPM_RC_SUCCESS = 4'b1111, TPM_RC_FAILURE = 4'b0000;	// returnCode Codes
 	localparam TPM2_STARTUP = 30'd0, TPM2_SHUTDOWN = 30'd1, TPM2_SELFTEST = 30'd2, TPM2_INCREMENTALSELFTEST = 30'd3, TPM2_GETTESTRESULT = 30'd4, TPM2_GETCAPABILITY = 30'd5;	// Command codes
