@@ -40,8 +40,7 @@ module management_module(
 		 act_timeoutSelect,
 		 act_signaledSelect,
 		 act_authPolicySelect,
-		 act_hashAlgSelect,
-		 shutdownState
+		 act_hashAlgSelect
 		 );
 		 
 	input 		  clock;						// Input clock signal
@@ -84,7 +83,6 @@ module management_module(
 	output	 	  act_signaledSelect;
 	output	     act_authPolicySelect;
 	output	     act_hashAlgSelect;
-	output 		  shutdownState;
 	
 	
 	// Command Codes
@@ -435,6 +433,7 @@ module management_module(
 			act_timeoutSelect = PRESERVED;
 			act_signaledSelect = PRESERVED;
 			act_authPolicySelect = PRESERVED;
+			act_hashAlgSelect		= PRESERVED;
 														 
 			initialized = 1'b1;
 		end
@@ -477,6 +476,7 @@ module management_module(
 			act_timeoutSelect = PRESERVED;
 			act_signaledSelect = PRESERVED;
 			act_authPolicySelect = PRESERVED;
+			act_hashAlgSelect		= PRESERVED;
 														 
 			initialized = s_initialized;
 		end
