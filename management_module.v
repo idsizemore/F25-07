@@ -3,10 +3,10 @@
 module management_module(		 
 		 clock, 
 		 reset_n,
+		 keyStart_n,
 		 tpm_cc,
 		 cmd_param,
 		 orderlyInput,
-		 restoreSuccessful,
 		 testsRun,
 		 testsPassed,
 		 untested,
@@ -27,7 +27,7 @@ module management_module(
 		 contextArraySelect,
 		 contextCount,
 		 commandAuditDigestSelect,
-		 objectContextID_state,
+		 objectContextID,
 		 newContextEncryptionKeyEnable,
 		 restartCount,
 		 clearCount,
@@ -45,10 +45,10 @@ module management_module(
 		 
 	input 		  clock;						// Input clock signal
 	input 		  reset_n;						// Input reset signal
+	input			  keyStart_n;
 	input  [31:0] tpm_cc;					// 32-bit input command
 	input  [15:0] cmd_param;				// 16-bit input command parameters
 	input			  orderlyInput;
-	input         restoreSuccessful;
 	input	 [15:0] testsRun;
 	input	 [15:0] testsPassed;
 	input	 [15:0] untested;
@@ -69,7 +69,7 @@ module management_module(
 	output	 	  contextArraySelect;
 	output [31:0] contextCount;
 	output		  commandAuditDigestSelect;
-	output [31:0] objectContextID_state;
+	output [31:0] objectContextID;
 	output	     newContextEncryptionKeyEnable;
 	output [31:0] restartCount;
 	output [31:0] clearCount;
@@ -155,12 +155,14 @@ module management_module(
 		end
 		else begin
 			phEnable     <= pHierarchy;
-			phEnableNV   <= nvEnable;
-			shEnable     <= sHierarchy;
-			ehEnable     <= eHierarchy;
 			orderly		 <= orderlyState;
-			op_state     <= state;
+			if(!keyStart_n) begin
+				op_state     <= state;
+			end
 			if(startupEnable) begin
+				phEnableNV   <= nvEnable;
+				shEnable     <= sHierarchy;
+				ehEnable     <= eHierarchy;
 				startup_sequence <= startup_state;
 				contextCount  <= contextCount_state;
 				objectContextID <= objectContextID_state;
@@ -177,7 +179,7 @@ module management_module(
 
 	assign startupEnable = (state == STARTUP_STATE);
 	
-	always@(startup_sequence, shutdownSave, tpm_cc, op_state, phEnable, shEnable, ehEnable, cmd_param, orderly, restoreSuccessful, untested, testsPassed, testsRun) begin
+	always@(startup_sequence, shutdownSave, tpm_cc, op_state, phEnable, shEnable, ehEnable, cmd_param, orderly, untested, testsPassed, testsRun) begin
 		pHierarchy = phEnable;
 		orderlyState = orderly;
 		startup_state = startup_sequence;
@@ -206,17 +208,13 @@ module management_module(
 													 state = OPERATIONAL_STATE;
 												 end
 												 else begin
-													 if(restoreSuccessful) begin
-														 startup_state = TPM_RESUME;	// TPM Resume
-														 state = OPERATIONAL_STATE;
-													 end
-													 else begin
-														 state = FAILURE_MODE_STATE;
-													 end
+													 startup_state = TPM_RESUME;	// TPM Resume
+													 state = OPERATIONAL_STATE;
 												 end
 											 end
 											 else begin
 												 if(cmd_param[0] == TPM_SU_STATE) begin
+													 startup_state = TPM_RESET;
 													 state = INITIALIZATION_STATE;
 												 end
 												 else begin
